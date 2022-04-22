@@ -9,7 +9,7 @@ import java.net.InetAddress;
 public class Server implements Runnable {
 
     // public static final String SERVERIP = "192.168.58.112"; // 'Within' the emulator!
-    public static final String SERVERIP = "192.168.58.112"; // 'Within' the emulator!
+    public static final String SERVERIP = "255.255.255.255"; // 'Within' the emulator!
     public static final int SERVERPORT = 50001;
 
     @Override
@@ -28,7 +28,7 @@ public class Server implements Runnable {
 
             /* Create new UDP-Socket */
             // SERVERPORT, serverAddr
-            DatagramSocket socket = new DatagramSocket(SERVERPORT); //serverAddr
+            DatagramSocket socket = new DatagramSocket(SERVERPORT, serverAddr); //serverAddr
             socket.setBroadcast(true);
             /* By magic we know, how much data will be waiting for us */
             byte[] buf = new byte[1500];

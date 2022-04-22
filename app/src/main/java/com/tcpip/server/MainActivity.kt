@@ -17,20 +17,28 @@ class MainActivity : AppCompatActivity() {
     private var receivePacket: DatagramPacket? = null
     var udpPacket: DatagramPacket? = null
     var data = ByteArray(128)
-    val SERVERIP = "192.168.58.112"
+    val SERVERIP = "255.255.255.255"
     var datagramSocketStream: DatagramSocket? =null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //val serv = SocketServer()
+       // serv.startServer()
+      /*  val thread = Thread(serv)
+          thread.start()
+*/
+        Thread{
+
+        }.start()
         Thread {
             //    setUDP()
-            openUdpPort()
+           // openUdpPort()
         }.start()
 
         val server = Server()
         val thread = Thread(server)
-      //  thread.start()
+        thread.start()
     }
 
 
