@@ -2,7 +2,9 @@ package com.tcpip.server
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.w3c.dom.Text
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -10,41 +12,82 @@ import java.net.InetSocketAddress
 
 
 class MainActivity : AppCompatActivity() {
-    private  val TAG = "MainActivity"
+    private val TAG = "MainActivity"
 
-    private var port = 8000
-    private var socket: DatagramSocket? = null
-    private var receivePacket: DatagramPacket? = null
-    var udpPacket: DatagramPacket? = null
-    var data = ByteArray(128)
-    val SERVERIP = "255.255.255.255"
-    var datagramSocketStream: DatagramSocket? =null
+    var datagramSocketStream: DatagramSocket? = null
+    private var ipText: TextView? = null
+    private var portText: TextView? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //val serv = SocketServer()
-       // serv.startServer()
-      /*  val thread = Thread(serv)
-          thread.start()
-*/
-        Thread{
+        ipText = findViewById<TextView>(R.id.ipText)
+        portText = findViewById<TextView>(R.id.portText)
 
-        }.start()
-        Thread {
-            //    setUDP()
-           // openUdpPort()
-        }.start()
-
-        val server = Server()
+        val server = ServerKotlin()
         val thread = Thread(server)
         thread.start()
     }
 
+    internal inner class ServerKotlin : Runnable {
+        override fun run() {
+            // TODO Auto-generated method stub
+            try {
+                /* Retrieve the ServerName */
+                val serverAddr = InetAddress.getByName(SERVERIP)
+                Log.d("UDP", "S: Connecting...")
 
-    fun setUDP() {
+                /* Create new UDP-Socket */
+                val socket = DatagramSocket(SERVERPORT, serverAddr) //serverAddr
+                socket.broadcast = true
+                /* By magic we know, how much data will be waiting for us */
+                val buf = ByteArray(1500)
+                /* Prepare a UDP-Packet that can
+                 * contain the data we want to receive */
+                val packet = DatagramPacket(buf, buf.size)
+                Log.d("UDP", "S: Receiving...")
+
+                /* Receive the UDP-Packet */socket.receive(packet)
+                Log.d("UDP", "S: Received: '" + String(packet.data) + "'")
+                Log.d("UDP", "S: Done.")
+                val clientAddr = packet.address
+                val clientPort = packet.port
+
+                //Change the text on the main activity view
+                runOnUiThread {
+                    ipText?.text = clientAddr.toString()
+                    portText?.text = clientPort.toString()
+                }
+
+                Log.d("run", "clientAddr: >>>>>>>>>>>>> $clientAddr")
+                val s = "Thanks"
+
+                // 오류나서 주석처리함
+                // buf = s.getBytes();
+                // packet = new DatagramPacket(buf, buf.length, clientAddr, clientPort);
+
+                Log.d("UDP", "S: Sending: '" + String(buf) + "'")
+                // socket.send(packet);
+            } catch (e: java.lang.Exception) {
+                Log.e("UDP", "S: Error", e)
+            }
+        }
+    }
+    companion object {
+        // public static final String SERVERIP = "192.168.58.112"; // 'Within' the emulator!
+        const val SERVERIP = "255.255.255.255" // 'Within' the emulator!
+        const val SERVERPORT = 50001
+    }
+
+
+
+    /*fun setUDP() {
+         var port = 8000
+         var socket: DatagramSocket? = null
+        var receivePacket: DatagramPacket? = null
+
         try {
-
             val serverAddr = InetAddress.getByName(SERVERIP);
             socket = DatagramSocket(port, serverAddr) //8000 port로 UDP 서버를 실행합니다.
             Log.d("UDP", "S: Connecting...")
@@ -71,36 +114,10 @@ class MainActivity : AppCompatActivity() {
         } catch (ex: Exception) {
             Log.e("UDP", "S: Error", ex)
         }
-    }
-
-
-    private fun openUdpPort() {
-            try {
-                datagramSocketStream = DatagramSocket(null)
-                datagramSocketStream?.reuseAddress = true
-                datagramSocketStream?.broadcast = true
-                datagramSocketStream?.bind(InetSocketAddress(50001))
-
-                val bufferLen = 1500
-                val bufferByteArray = ByteArray(bufferLen)
-                val datagramPacket = DatagramPacket(bufferByteArray, bufferByteArray.size)
-
-                datagramSocketStream?.receive(datagramPacket)
-
-                val noBytesRead = datagramPacket.length
-                Log.d(TAG, "openUdpPort: >>>>>>>>>>>>>>>> $noBytesRead")
-              //  interpretUdpData(datagramPacket.data)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-            }
-        }
+    }*/
 
     override fun onDestroy() {
         super.onDestroy()
-        socket?.close()
-        datagramSocketStream?.close()
     }
 
 }

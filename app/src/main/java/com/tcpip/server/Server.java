@@ -45,12 +45,13 @@ public class Server implements Runnable {
 
             InetAddress clientAddr = packet.getAddress();
             int clientPort = packet.getPort();
+            Log.d("run", "clientAddr: >>>>>>>>>>>>> " + clientAddr);
             String s = "Thanks";
-            buf = s.getBytes();
-            packet = new DatagramPacket(buf, buf.length, clientAddr, clientPort);
+           // buf = s.getBytes();
+           // packet = new DatagramPacket(buf, buf.length, clientAddr, clientPort);
 
             Log.d("UDP", "S: Sending: '" + new String(buf) + "'");
-            socket.send(packet);
+            // socket.send(packet);
 
         } catch (Exception e) {
             Log.e("UDP", "S: Error", e);
