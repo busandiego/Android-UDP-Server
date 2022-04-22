@@ -4,12 +4,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import org.w3c.dom.Text
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.InetSocketAddress
-
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
@@ -61,7 +58,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 Log.d("run", "clientAddr: >>>>>>>>>>>>> $clientAddr")
-                val s = "Thanks"
 
                 // 오류나서 주석처리함
                 // buf = s.getBytes();
