@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("UDP", "S: Connecting...")
 
                 /* Create new UDP-Socket */
-                socket = DatagramSocket(SERVERPORT, serverAddr) //50001 port로 UDP 서버를 실행
+                socket = DatagramSocket(SERVERPORT) //50001 port로 UDP 서버를 실행 // , serverAddr
                 socket!!.broadcast = true
 
                 /* By magic we know, how much data will be waiting for us */
@@ -104,7 +104,8 @@ class MainActivity : AppCompatActivity() {
     }
     companion object {
         // public static final String SERVERIP = "192.168.58.112"; // 'Within' the emulator!
-        const val SERVERIP = "255.255.255.255" // 'Within' the emulator!
+        // 192.168.2.2
+        const val SERVERIP = "192.168.1.255" // 'Within' the emulator!
         const val SERVERPORT = 50001
     }
 
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 var s: String = String(receivePacket!!.getData()) //String을 복사합니다.
                 Log.d("UDP", "Receive : $s")
                 s = s.toUpperCase() //대문자로 변환합니다.
-                buf = s.toByteArray() //Byte단위로 변환합니다.
+                buf = s.toByteArray() //Byte단위Connecting...로 변환합니다.
                 Log.d("UDP", "UpperCase : $s")
 
                 //Client로 다시 전송합니다.
