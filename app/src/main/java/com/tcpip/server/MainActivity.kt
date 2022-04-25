@@ -1,5 +1,6 @@
 package com.tcpip.server
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -7,49 +8,80 @@ import androidx.appcompat.app.AppCompatActivity
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import java.net.NetworkInterface
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
-    var datagramSocketStream: DatagramSocket? = null
     private var ipText: TextView? = null
     private var portText: TextView? = null
-
+    private var running = true
+    private var socket: DatagramSocket ?= null
+    private var clientAddr: InetAddress ?= null
+    private var clientPort: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ipText = findViewById<TextView>(R.id.ipText)
-        portText = findViewById<TextView>(R.id.portText)
+        ipText = findViewById(R.id.ipText)
+        portText = findViewById(R.id.portText)
 
         val server = ServerKotlin()
         val thread = Thread(server)
         thread.start()
+
     }
 
     internal inner class ServerKotlin : Runnable {
         override fun run() {
             // TODO Auto-generated method stub
+            running = true;
+
             try {
                 /* Retrieve the ServerName */
-                val serverAddr = InetAddress.getByName(SERVERIP)
+                 val serverAddr = InetAddress.getByName(SERVERIP) //
                 Log.d("UDP", "S: Connecting...")
 
                 /* Create new UDP-Socket */
-                val socket = DatagramSocket(SERVERPORT, serverAddr) //serverAddr
-                socket.broadcast = true
+                socket = DatagramSocket(SERVERPORT, serverAddr) //50001 port로 UDP 서버를 실행
+                socket!!.broadcast = true
+
                 /* By magic we know, how much data will be waiting for us */
                 val buf = ByteArray(1500)
-                /* Prepare a UDP-Packet that can
-                 * contain the data we want to receive */
-                val packet = DatagramPacket(buf, buf.size)
-                Log.d("UDP", "S: Receiving...")
+                while(running){ // client 요청을 기다려야해서 while문 사용
+                    /* Prepare a UDP-Packet that can
+                * contain the data we want to receive */
+                    var packet = DatagramPacket(buf, buf.size)
+                    Log.d("UDP", "S: Receiving...")
 
-                /* Receive the UDP-Packet */socket.receive(packet)
-                Log.d("UDP", "S: Received: '" + String(packet.data) + "'")
-                Log.d("UDP", "S: Done.")
-                val clientAddr = packet.address
-                val clientPort = packet.port
+                    /* Receive the UDP-Packet */
+                    socket!!.receive(packet)
+
+                    clientAddr = packet.address
+                    clientPort = packet.port
+
+
+                    Log.d("UDP", "clientAddr: $clientAddr")
+                    Log.d("UDP", "clientPort: $clientPort")
+
+                    packet = DatagramPacket(buf, buf.size, clientAddr, clientPort);
+
+                    val received = String(packet.data, 0, packet.length)
+                    Log.d("UDP", "S: Received: '" + received + "'")
+                    Log.d("UDP", "S: Done.")
+
+                    if(clientAddr!= null){ // ip를 받게 되면 running이 false 처리되서 while을 빠져나옴
+                        running = false
+                        continue // 필수로 써야됨 안쓰면 오류
+                    }
+                    socket!!.send(packet);
+                    Log.d("UDP", "S: send Packet: '" + packet + "'")
+                }
+
+                socket!!.close()
+                Log.d("UDP", "S: Socket Close.")
+                Log.d("UDP", "clientAddr.toString() >>. ${clientAddr.toString()}")
+
 
                 //Change the text on the main activity view
                 runOnUiThread {
@@ -62,9 +94,9 @@ class MainActivity : AppCompatActivity() {
                 // 오류나서 주석처리함
                 // buf = s.getBytes();
                 // packet = new DatagramPacket(buf, buf.length, clientAddr, clientPort);
-
-                Log.d("UDP", "S: Sending: '" + String(buf) + "'")
+                // Log.d("UDP", "S: Sending: '" + String(buf) + "'")
                 // socket.send(packet);
+
             } catch (e: java.lang.Exception) {
                 Log.e("UDP", "S: Error", e)
             }
