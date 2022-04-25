@@ -1,6 +1,16 @@
 package com.tcpip.server;
 
+import android.Manifest;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.net.wifi.WifiInfo;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -53,8 +63,35 @@ public class Server implements Runnable {
             Log.d("UDP", "S: Sending: '" + new String(buf) + "'");
             // socket.send(packet);
 
+
+
+
         } catch (Exception e) {
             Log.e("UDP", "S: Error", e);
         }
+    }
+
+    public void setC(Context context){
+        final NetworkRequest request =
+                new NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                        .build();
+        final ConnectivityManager connectivityManager =
+                context.getSystemService(ConnectivityManager.class);
+        final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.Q)
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+                WifiInfo wifiInfo = (WifiInfo) networkCapabilities.getTransportInfo();
+            }
+            // etc.
+        };
+        connectivityManager.requestNetwork(request, networkCallback); // For request
+        connectivityManager.registerNetworkCallback(request, networkCallback); // For listen
     }
 }
