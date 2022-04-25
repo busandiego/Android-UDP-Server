@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
                     packet = DatagramPacket(buf, buf.size, clientAddr, clientPort);
 
-                    val received = String(packet.data, 0, packet.length)
+                    val received = String(packet.data, 0, packet.length).trim { it <= ' ' }
                     Log.d("UDP", "S: Received: '" + received + "'")
                     Log.d("UDP", "S: Done.")
 
@@ -74,8 +74,8 @@ class MainActivity : AppCompatActivity() {
                         running = false
                         continue // 필수로 써야됨 안쓰면 오류
                     }
-                    socket!!.send(packet);
-                    Log.d("UDP", "S: send Packet: '" + packet + "'")
+                    // socket!!.send(packet);
+                    // Log.d("UDP", "S: send Packet: '" + packet + "'")
                 }
 
                 socket!!.close()
